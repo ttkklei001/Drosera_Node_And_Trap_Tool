@@ -118,7 +118,6 @@ function register_operator() {
 function start_service() {
   read -p "请输入你的 RPC 地址 / Enter your RPC Address: " eth_rpc
   read -p "请输入你的 EVM 私钥 / Enter your EVM Private Key: " private_key
-  read -p "请输入你的 Drosera 地址 / Enter your Drosera Address: " drosera_address
   read -p "请输入你的 VPS 公网 IP 地址 / Enter your VPS Public IP: " vps_ip
 
   cat <<EOF > /etc/systemd/system/drosera.service
@@ -133,8 +132,8 @@ RestartSec=15
 LimitNOFILE=65535
 ExecStart=/usr/local/bin/drosera-operator node --db-file-path /root/.drosera.db --network-p2p-port 31313 --server-port 31314 \\
   --eth-rpc-url $eth_rpc \\
-  --eth-backup-rpc-url https://1rpc.io/holesky \\
-  --drosera-address $drosera_address \\
+  --eth-backup-rpc-url $eth_rpc \\
+  --drosera-address 0xea08f7d533C2b9A62F40D5326214f39a8E3A32F8 \\
   --eth-private-key $private_key \\
   --listen-address $vps_ip \\
   --network-external-p2p-address $vps_ip \\
