@@ -4,47 +4,81 @@
 # K2 Node Tutorial Share | https://x.com/BtcK241918 | Telegram: https://t.me/+EaCiFDOghoM3Yzll
 
 function pause() {
-  read -n1 -r -p "Press any key to return to the main menu..." key
+  read -n1 -r -p "Press any key to return to the main menu... 按任意键返回主菜单..." key
   echo
 }
 
 # ========== Trap 合约功能 / Trap Contract Features ==========
+
 function trap_main_menu() {
   echo "=============== Trap 合约部署菜单 / Trap Contract Deployment Menu ==============="
-  echo "1) 部署 Trap 合约 / Deploy Trap Contract"
+  echo "1) 配置环境并部署 Trap 合约 / Configure Environment and Deploy Trap Contract"
   echo "2) 设置 Trap 白名单 / Set Trap Whitelist"
   echo "3) 返回主菜单 / Return to Main Menu"
   echo "================================================="
   read -p "选择操作 / Choose an option (1-3): " choice
 
   case $choice in
-    1) init_and_deploy_trap ;;
+    1) configure_and_deploy_trap ;;
     2) setup_whitelist ;;
     3) main_menu ;;
     *) echo "无效选项 / Invalid option"; trap_main_menu ;;
   esac
 }
 
-function init_and_deploy_trap() {
-  rm -rf my-drosera-trap
-  forge init my-drosera-trap -t https://github.com/drosera-network/trap-foundry-template
+function configure_and_deploy_trap() {
+  echo "=============== 配置环境并部署 Trap 合约 / Configure Environment and Deploy Trap Contract ==============="
+  
+  # 安装茅膏菜 CLI / Install Drosera CLI
+  echo "正在安装 Drosera CLI / Installing Drosera CLI..."
+  curl -L https://app.drosera.io/install | bash
+  source /root/.bashrc
+  droseraup
+  echo "Drosera CLI 安装完成 / Drosera CLI installation completed."
+  
+  # 安装 Foundry CLI / Install Foundry CLI
+  echo "正在安装 Foundry CLI / Installing Foundry CLI..."
+  curl -L https://foundry.paradigm.xyz | bash
+  source /root/.bashrc
+  foundryup
+  echo "Foundry CLI 安装完成 / Foundry CLI installation completed."
+  
+  # 安装包子 (bun) / Install Bun (包子)
+  echo "正在安装包子 (bun)... / Installing Bun..."
+  curl -fsSL https://bun.sh/install | bash
+  source /root/.bashrc
+  echo "包子 (bun) 安装完成 / Bun installation completed."
+  
+  # 创建项目目录并初始化 Trap 合约 / Create project directory and initialize Trap contract
+  mkdir my-drosera-trap
   cd my-drosera-trap || exit
-
+  echo "请输入你的 GitHub 邮箱 / Enter your GitHub Email: "
   read -p "GitHub 邮箱 / GitHub Email: " GITHUB_EMAIL
+  echo "请输入你的 GitHub 用户名 / Enter your GitHub Username: "
   read -p "GitHub 用户名 / GitHub Username: " GITHUB_USERNAME
   git config --global user.email "$GITHUB_EMAIL"
   git config --global user.name "$GITHUB_USERNAME"
-
-  rm -rf node_modules bun.lockb
+  
+  # 初始化 Trap 合约项目 / Initialize Trap contract project
+  echo "正在初始化 Trap 合约 / Initializing Trap Contract..."
+  forge init -t drosera-network/trap-foundry-template
+  
+  # 安装依赖并编译 / Install dependencies and build
+  echo "正在安装依赖并编译合约 / Installing dependencies and building the contract..."
+  curl -fsSL https://bun.sh/install | bash
+  source /root/.bashrc
   bun install
   forge build
-
-  read -p "请输入 EVM 私钥 / Enter EVM Private Key: " DEPLOY_KEY
+  
+  # 部署 Trap 合约 / Deploy Trap contract
+  echo "请输入 EVM 私钥 / Enter EVM Private Key: "
+  read -p "EVM 私钥 / EVM Private Key: " DEPLOY_KEY
   DEPLOY_KEY=${DEPLOY_KEY#0x}
   export DEPLOY_KEY_GLOBAL=$DEPLOY_KEY
-
-  echo "ofc" | DROSERA_PRIVATE_KEY=$DEPLOY_KEY drosera apply
-
+  
+  echo "正在部署 Trap 合约 / Deploying Trap Contract..."
+  DROSERA_PRIVATE_KEY=$DEPLOY_KEY drosera apply
+  
   pause
   trap_main_menu
 }
@@ -62,6 +96,7 @@ function setup_whitelist() {
 }
 
 # ========== Operator 节点功能 / Operator Node Features ==========
+
 function install_operator() {
   echo "安装 Drosera Operator v1.16.2 / Installing Drosera Operator v1.16.2..."
   cd /usr/local/bin
@@ -135,6 +170,7 @@ function uninstall() {
 }
 
 # ========== 主菜单 / Main Menu ==========
+
 function main_menu() {
   while true; do
     clear
